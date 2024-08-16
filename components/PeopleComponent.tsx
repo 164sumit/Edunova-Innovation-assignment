@@ -38,6 +38,11 @@ const PeopleDirectory = ({ pdata }: { pdata: Person[] }) => {
   const [showTeams, setShowTeams] = useState(false);
   const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
   const [selectedTeams, setSelectedTeams] = useState<string[]>([]);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]); // For selection checkboxes
+  const [deleteConfirmation, setDeleteConfirmation] = useState<{
+    isOpen: boolean;
+    personId: string | null;
+  }>({ isOpen: false, personId: null });
   const handleFilterClick = () => {
     setShowFilterDropdown(!showFilterDropdown);
   };
@@ -95,6 +100,42 @@ const PeopleDirectory = ({ pdata }: { pdata: Person[] }) => {
 
   const columns = useMemo<ColumnDef<Person>[]>(
     () => [
+        {
+        id: "select",
+        header: ({ table }) => (
+          <input
+            type="checkbox"
+            checked={table.getIsAllPageRowsSelected()}
+            className="size-4"
+            onChange={(e) => {
+              setSelectedIds(
+                e.target.checked
+                  ? table.getRowModel().rows.map((row) => row.original.id)
+                  : []
+              );
+              table.toggleAllPageRowsSelected(e.target.checked);
+            }}
+          />
+        ),
+        cell: ({ row }) => (
+          <input
+            type="checkbox"
+            checked={row.getIsSelected()}
+            // className="size-4 text-gray-600"
+            // onClick={()=>{
+            //     handleCloseDetails();
+            // }}
+            onChange={() => {
+              row.toggleSelected();
+              setSelectedIds((prev) =>
+                row.getIsSelected()
+                  ? [...prev, row.original.id]
+                  : prev.filter((id) => id !== row.original.id)
+              );
+            }}
+          />
+        ),
+      },
       {
         accessorKey: "name",
         header: "Name",
@@ -214,10 +255,18 @@ const PeopleDirectory = ({ pdata }: { pdata: Person[] }) => {
         cell: ({ row }) => (
           <div className="flex gap-4 mr-3">
             <button
-              onClick={(e) => {
+            //   onClick={(e) => {
+            //     e.stopPropagation();
+            //     handleDeletePerson(row.original.id);
+            //   }}
+            onClick={(e) => {
                 e.stopPropagation();
-                handleDeletePerson(row.original.id);
+                setDeleteConfirmation({
+                  isOpen: true,
+                  personId: row.original.id,
+                });
               }}
+
               className="text-gray-600 hover:text-red-600"
             >
               <TrashIcon className="h-5 w-5" />
@@ -283,8 +332,13 @@ const PeopleDirectory = ({ pdata }: { pdata: Person[] }) => {
     setIsFormOpen(true);
   };
 
-  const handleDeletePerson = (personId: string) => {
-    setData((prevData) => prevData.filter((p) => p.id !== personId));
+  const handleDeletePerson = () => {
+    if (deleteConfirmation.personId) {
+      setData((prevData) =>
+        prevData.filter((p) => p.id !== deleteConfirmation.personId)
+      );
+      setDeleteConfirmation({ isOpen: false, personId: null });
+    }
   };
 
   const handleFormSubmit = (formData: Omit<Person, "id">) => {
@@ -385,6 +439,7 @@ const PeopleDirectory = ({ pdata }: { pdata: Person[] }) => {
                     <div key={role} className="flex items-center">
                       <input
                         type="checkbox"
+                        
                         checked={selectedRoles.includes(role)}
                         onChange={() => handleRoleSelect(role)}
                       />
@@ -551,6 +606,37 @@ const PeopleDirectory = ({ pdata }: { pdata: Person[] }) => {
     <ChevronRightIcon className="h-5 w-5 ml-1" />
   </button>
 </div>
+{/* Delete Confirmation Popup */}
+{deleteConfirmation.isOpen && (
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg">
+            <h3 className="text-lg font-semibold mb-4">
+              Are you sure you want to delete this member?
+            </h3>
+            <p className="text-sm text-gray-600 mb-4">
+              This action cannot be undone.
+            </p>
+            <div className="flex justify-end space-x-4">
+              <button
+                onClick={() =>
+                  setDeleteConfirmation({ isOpen: false, personId: null })
+                }
+                className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDeletePerson}
+                className="px-4 py-2 bg-red-600 text-white rounded-md"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+       {/* Add/Edit Form Modal */}
       
       {isFormOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
