@@ -1,5 +1,5 @@
 import PeopleDirectory from '@/components/PeopleComponent'
-import React from 'react'
+import React, { Suspense } from 'react'
 import { Person } from '../types'
 import { faker } from '@faker-js/faker'
 
@@ -20,7 +20,10 @@ const page = () => {
       }
       const data=generateFakeData(100);
   return (
-    <div><PeopleDirectory pdata={data}/></div>
+    <Suspense fallback={<div>Loading...</div>}>
+      <PeopleDirectory pdata={data}/>
+    </Suspense>
+    
   )
 }
 

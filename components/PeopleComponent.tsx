@@ -16,10 +16,9 @@ import {
 import { faker } from "@faker-js/faker";
 import { ChevronDownIcon, ChevronRightIcon, ChevronUpIcon, PencilIcon, TrashIcon } from "@heroicons/react/24/outline";
 import { Person } from "@/app/types";
-import FilterDropdown from "./FilterDropdown";
-import PersonDetails from "./PersonDetails";
+
 import PersonForm from "./PersonForm";
-import Image from "next/image";
+
 import { Badge } from "./ui/badge";
 import { ArrowDown, ArrowUp, ArrowUp01, ChevronLeftIcon } from "lucide-react";
 import UserProfile from "./UserProfile";
