@@ -22,6 +22,7 @@ import PersonForm from "./PersonForm";
 import { Badge } from "./ui/badge";
 import { ArrowDown, ArrowUp, ArrowUp01, ChevronLeftIcon } from "lucide-react";
 import UserProfile from "./UserProfile";
+import EditProfile from "./EditProfile";
 
 const PeopleDirectory = ({ pdata }: { pdata: Person[] }) => {
   const router = useRouter();
@@ -540,8 +541,8 @@ const PeopleDirectory = ({ pdata }: { pdata: Person[] }) => {
             {table.getRowModel().rows.map((row,index) => (
               <tr
                 key={row.id}
-                className="divide-y cursor-pointer"
-                // className={`${index% 2 === 0 ? 'bg-white cursor-pointer' : 'bg-[#F9FAFB] '} cursor-pointer border-solid border-2 border-[#E4E7EC]`}
+                // className="divide-y cursor-pointer"
+                className={`${index% 2 === 0 ? 'bg-white cursor-pointer' : 'bg-[#F9FAFB] '} cursor-pointer divide-y `}
                 // className=" hover:bg-gray-100 cursor-pointer"
                 onClick={() => handleRowClick(row.original)}
               >
@@ -638,12 +639,13 @@ const PeopleDirectory = ({ pdata }: { pdata: Person[] }) => {
 
        {/* Add/Edit Form Modal */}
       
-      {isFormOpen && (
+      {isFormOpen&&!editingPerson && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
           <div className="bg-white p-4 rounded-lg w-96">
             <h2 className="text-2xl font-bold mb-4">
               {editingPerson ? "Edit Member" : "Add Member"}
             </h2>
+            
             <PersonForm
               initialData={editingPerson || undefined}
               onSubmit={handleFormSubmit}
@@ -652,6 +654,17 @@ const PeopleDirectory = ({ pdata }: { pdata: Person[] }) => {
           </div>
         </div>
       )}
+      {
+        isFormOpen&&editingPerson && (
+            <div>
+                <EditProfile
+                initialData={editingPerson || undefined}
+                onSubmit={handleFormSubmit}
+                onCancel={handleFormCancel}
+                />
+            </div>
+        )
+      }
     </div>
   );
 };
